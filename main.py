@@ -8,7 +8,7 @@ y = []
 
 mypath = sys.argv[1]
 features = ['centroid', 'flatness', 'loudness', 'mfcc', 'roll_off', 'spread_skewness_kurtosis', 'zero_crossing_rate']
-
+features = ['mfcc']
 genres = [join(mypath, "Carnatic/"), join(mypath, "Filmy/"), join(mypath, "Ghazal/"), join(mypath, "Hindustani/")]
 files = {}
 
@@ -56,7 +56,7 @@ from sklearn.externals import joblib
 #############################################################
 from sklearn.neighbors import KNeighborsClassifier
 
-neigh = KNeighborsClassifier(n_neighbors=3)
+neigh = KNeighborsClassifier(n_neighbors=12)
 neigh.fit(X,y)
 # joblib.dump(neigh, 'KNN.mdl')
 # print(neigh.predict(X))
@@ -80,17 +80,21 @@ from sklearn.svm import SVC
 A = np.array(X)
 b = np.array(y)
 
-clf = SVC(decision_function_shape='ovo', kernel='linear')
-print(clf.fit(A, b))
+clf = SVC(decision_function_shape='ovo', kernel='poly')
+clf.fit(A, b)
 # print(clf.predict(X))
 #############################################################
 
 
 
 
-for genre in genres:
+for index, genre in enumerate(genres):
 	T = []
-	for x in range(0,125):
+	for feature in features:
+		path = join(genre, feature)
+		files[feature] = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
+		files[feature].sort()
+	for x in range(126,151):
 		all_features_data = []
 		for feature in features:
 			with open(files[feature][x]) as data_file:
@@ -122,17 +126,16 @@ for genre in genres:
 				else:
 					all_features_data.append(feature_data)
 		T.append(all_features_data)
-	print(genre)
 	print("kNN")
 	print(neigh.predict(T))
-	print(sum(1 for x in neigh.predict(T).tolist() if x==0))
+	print(sum(1 for x in neigh.predict(T).tolist() if x==index))
 	print("kMeans")
 	print(means.predict(T))
-	print(sum(1 for x in means.predict(T).tolist() if x==0))
+	print(sum(1 for x in means.predict(T).tolist() if x==index))
 	print("GMM")
 	print(mixture.predict(T))
-	print(sum(1 for x in mixture.predict(T).tolist() if x==0))
+	print(sum(1 for x in mixture.predict(T).tolist() if x==index))
 	print("SVM")
 	print(clf.predict(T))
-	print(sum(1 for x in clf.predict(T).tolist() if x==0))
+	print(sum(1 for x in clf.predict(T).tolist() if x==index))
 	print("#############################################################")	
