@@ -8,7 +8,7 @@ y = []
 
 mypath = sys.argv[1]
 features = ['centroid', 'flatness', 'loudness', 'mfcc', 'roll_off', 'spread_skewness_kurtosis', 'zero_crossing_rate']
-features = ['mfcc']
+
 genres = [join(mypath, "Carnatic/"), join(mypath, "Filmy/"), join(mypath, "Ghazal/"), join(mypath, "Hindustani/")]
 files = {}
 
@@ -80,7 +80,7 @@ from sklearn.svm import SVC
 A = np.array(X)
 b = np.array(y)
 
-clf = SVC(decision_function_shape='ovo', kernel='poly')
+clf = SVC(decision_function_shape='ovr', kernel='rbf', gamma=0.00001)
 clf.fit(A, b)
 # print(clf.predict(X))
 #############################################################
